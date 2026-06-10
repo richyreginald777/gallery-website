@@ -344,6 +344,8 @@ npm run lint
 - Verify bucket has public access enabled
 - Confirm `NEXT_PUBLIC_SUPABASE_URL` is correct
 
+** NOTE: Payment Flow is not yet Implemnted
+
 ## License
 
 This project is open source and available under the MIT License.
