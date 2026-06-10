@@ -1,0 +1,9 @@
+node_modules
+.next
+# all env files except the committed template
+.env
+.env.*
+!.env.local.example
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
