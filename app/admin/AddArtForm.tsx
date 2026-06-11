@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import { createArtwork } from "./actions";
 
-const input = "w-full rounded border border-neutral-300 px-3 py-2 text-sm";
+const input = "input";
 
 export default function AddArtForm() {
   const [preview, setPreview] = useState<string | null>(null);
@@ -67,14 +67,14 @@ export default function AddArtForm() {
           accept="image/*"
           capture="environment"
           onChange={onFile}
-          className="block w-full text-sm"
+          className="block w-full text-sm text-muted file:mr-4 file:rounded-md file:border file:border-line file:bg-raise file:px-4 file:py-2 file:text-sm file:text-ink file:transition-colors hover:file:border-accent/50"
         />
         {preview && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={preview}
             alt="preview"
-            className="mt-3 max-h-64 rounded border border-neutral-200 object-contain"
+            className="mt-3 max-h-64 rounded-lg border border-line object-contain"
           />
         )}
       </div>
@@ -97,13 +97,10 @@ export default function AddArtForm() {
         className={input}
       />
 
-      <button
-        disabled={busy}
-        className="w-full rounded bg-neutral-900 px-4 py-3 text-white disabled:opacity-50"
-      >
+      <button disabled={busy} className="btn-primary w-full">
         Publish
       </button>
-      {msg && <p className="text-sm text-neutral-600">{msg}</p>}
+      {msg && <p className="text-sm text-muted">{msg}</p>}
     </form>
   );
 }
