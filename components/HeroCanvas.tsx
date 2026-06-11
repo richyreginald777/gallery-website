@@ -3,10 +3,11 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Signature hero moment: slow-drifting "gallery dust" particles lit by a
- * warm glow that leans toward the pointer. Plain 2D canvas — no WebGL
+ * Signature hero moment: slow-drifting "gallery dust" particles over a
+ * fixed warm glow. (Cursor interaction lives in CursorStars — the glow
+ * deliberately does NOT follow the pointer.) Plain 2D canvas — no WebGL
  * payload — capped DPR, pauses when off-screen/hidden, and renders a
- * static glow for users who prefer reduced motion.
+ * static composition for users who prefer reduced motion.
  */
 export default function HeroCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -29,11 +30,9 @@ export default function HeroCanvas() {
     let running = true;
     let t = 0;
 
-    // Pointer-led glow position (eased)
-    let gx = 0.5;
-    let gy = 0.45;
-    let tx = 0.5;
-    let ty = 0.45;
+    // Fixed glow position — a quiet spotlight, slightly above centre
+    const gx = 0.5;
+    const gy = 0.42;
 
     type P = {
       x: number;
@@ -82,10 +81,6 @@ export default function HeroCanvas() {
       if (!running) return;
       t += 1;
       ctx!.clearRect(0, 0, w, h);
-
-      // Ease glow toward pointer
-      gx += (tx - gx) * 0.03;
-      gy += (ty - gy) * 0.03;
       drawGlow();
 
       for (const p of particles) {
@@ -127,12 +122,6 @@ export default function HeroCanvas() {
       return () => window.removeEventListener("resize", onResizeStatic);
     }
 
-    const onMove = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      tx = (e.clientX - rect.left) / rect.width;
-      ty = (e.clientY - rect.top) / rect.height;
-    };
-
     const io = new IntersectionObserver(
       ([entry]) => {
         const visible = entry.isIntersecting && !document.hidden;
@@ -159,7 +148,6 @@ export default function HeroCanvas() {
     };
 
     window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     raf = requestAnimationFrame(frame);
 
@@ -168,7 +156,6 @@ export default function HeroCanvas() {
       cancelAnimationFrame(raf);
       io.disconnect();
       window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onMove);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
