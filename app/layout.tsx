@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import "@fontsource-variable/fraunces";
+import "@fontsource-variable/inter";
 import "./globals.css";
+import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Art Gallery",
-  description: "Original artwork for sale.",
+  title: "The Gallery — Original Artwork",
+  description:
+    "Original works by a single hand. One-of-a-kind pieces, shipped from the studio.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0d0c0b",
 };
 
 export default function RootLayout({
@@ -15,24 +23,27 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen antialiased">
-        <header className="border-b border-neutral-200 bg-white/70 backdrop-blur sticky top-0 z-10">
-          <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <Link href="/" className="font-serif text-xl tracking-tight">
-              The Gallery
-            </Link>
-            <div className="flex items-center gap-5 text-sm">
-              <Link href="/" className="hover:underline">
-                Gallery
-              </Link>
-              <Link href="/account" className="hover:underline">
-                Account
-              </Link>
+        <Header />
+        <main className="min-h-screen">{children}</main>
+        <footer className="border-t border-line">
+          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-12 sm:flex-row sm:items-end sm:justify-between sm:px-6">
+            <div>
+              <p className="font-serif text-lg text-ink">The Gallery</p>
+              <p className="mt-1 max-w-xs text-sm leading-relaxed text-faint">
+                Original works by a single hand. Each piece is one of one —
+                once it&apos;s gone, it&apos;s gone.
+              </p>
             </div>
-          </nav>
-        </header>
-        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-        <footer className="mx-auto max-w-6xl px-4 py-12 text-xs text-neutral-400">
-          Original artwork. Payments via UPI.
+            <div className="text-xs text-faint">
+              <p>Secure payments via UPI · Razorpay</p>
+              <p className="mt-1">
+                © {new Date().getFullYear()} The Gallery ·{" "}
+                <Link href="/" className="link-quiet">
+                  Browse the collection
+                </Link>
+              </p>
+            </div>
+          </div>
         </footer>
       </body>
     </html>

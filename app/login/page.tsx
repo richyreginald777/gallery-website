@@ -52,62 +52,69 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="font-serif text-2xl mb-6">Sign in</h1>
+    <div className="page">
+      <div className="mx-auto max-w-sm">
+        <p className="eyebrow mb-3">Welcome back</p>
+        <h1 className="mb-8 font-serif text-3xl tracking-tight text-ink">
+          Sign in
+        </h1>
 
-      <div className="space-y-3">
-        <input
-          className="w-full rounded border border-neutral-300 px-3 py-2"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        {mode === "password" && (
+        <div className="card space-y-4 p-6">
           <input
-            className="w-full rounded border border-neutral-300 px-3 py-2"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            className="input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-        )}
+          {mode === "password" && (
+            <input
+              className="input"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          )}
 
-        {mode === "password" ? (
-          <div className="flex gap-2">
+          {mode === "password" ? (
+            <div className="flex gap-3">
+              <button
+                disabled={busy}
+                onClick={() => handlePassword(false)}
+                className="btn-primary flex-1"
+              >
+                Sign in
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => handlePassword(true)}
+                className="btn-ghost flex-1"
+              >
+                Sign up
+              </button>
+            </div>
+          ) : (
             <button
               disabled={busy}
-              onClick={() => handlePassword(false)}
-              className="flex-1 rounded bg-neutral-900 px-3 py-2 text-white disabled:opacity-50"
+              onClick={handleMagic}
+              className="btn-primary w-full"
             >
-              Sign in
+              Send magic link
             </button>
-            <button
-              disabled={busy}
-              onClick={() => handlePassword(true)}
-              className="flex-1 rounded border border-neutral-300 px-3 py-2 disabled:opacity-50"
-            >
-              Sign up
-            </button>
-          </div>
-        ) : (
+          )}
+
           <button
-            disabled={busy}
-            onClick={handleMagic}
-            className="w-full rounded bg-neutral-900 px-3 py-2 text-white disabled:opacity-50"
+            onClick={() => setMode(mode === "password" ? "magic" : "password")}
+            className="link-quiet text-sm"
           >
-            Send magic link
+            {mode === "password"
+              ? "Use a magic link instead"
+              : "Use a password instead"}
           </button>
-        )}
 
-        <button
-          onClick={() => setMode(mode === "password" ? "magic" : "password")}
-          className="text-sm text-neutral-500 underline"
-        >
-          {mode === "password" ? "Use a magic link instead" : "Use a password instead"}
-        </button>
-
-        {msg && <p className="text-sm text-neutral-700">{msg}</p>}
+          {msg && <p className="text-sm text-muted">{msg}</p>}
+        </div>
       </div>
     </div>
   );

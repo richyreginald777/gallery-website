@@ -12,6 +12,11 @@ type Row = Order & {
   artworks: { title: string } | null;
 };
 
+const BADGE: Record<string, string> = {
+  paid: "border-emerald-700/50 bg-emerald-950/60 text-emerald-300",
+  shipped: "border-sky-700/50 bg-sky-950/60 text-sky-300",
+};
+
 export default async function OrdersPage() {
   const admin = createAdminClient();
   log.step("loading orders");
@@ -25,11 +30,13 @@ export default async function OrdersPage() {
     log.error("orders query failed", error);
     return (
       <div>
-        <h1 className="font-serif text-2xl mb-6">Orders</h1>
-        <div className="rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <h1 className="mb-7 font-serif text-3xl tracking-tight text-ink">
+          Orders
+        </h1>
+        <div className="card border-red-900/50 bg-red-950/30 p-4 text-sm text-red-300">
           <p className="font-medium">Could not load orders.</p>
           <p className="mt-1">{error.message}</p>
-          <p className="mt-2 text-red-600">
+          <p className="mt-2 text-red-400">
             If this says the table is missing, run the migration in
             <code className="mx-1">supabase/migrations/0001_init.sql</code>
             via the Supabase SQL Editor.
@@ -44,37 +51,45 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-2xl mb-6">Orders</h1>
+      <h1 className="mb-7 font-serif text-3xl tracking-tight text-ink">
+        Orders
+      </h1>
 
       {orders.length === 0 && (
-        <p className="text-sm text-neutral-500">No orders yet.</p>
+        <p className="text-sm text-faint">No orders yet.</p>
       )}
 
       <div className="space-y-3">
         {orders.map((o) => (
           <div
             key={o.id}
-            className="rounded border border-neutral-200 bg-white p-4 text-sm"
+            className="card p-4 text-sm transition-colors duration-300 hover:border-accent/30"
           >
             <div className="flex items-center justify-between">
-              <p className="font-medium">{o.artworks?.title ?? "Artwork"}</p>
-              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs capitalize">
+              <p className="font-medium text-ink">
+                {o.artworks?.title ?? "Artwork"}
+              </p>
+              <span
+                className={`rounded-full border px-2.5 py-0.5 text-xs capitalize ${
+                  BADGE[o.status] ?? "border-line bg-raise text-muted"
+                }`}
+              >
                 {o.status}
               </span>
             </div>
-            <p className="mt-1 text-neutral-500">
+            <p className="mt-1 text-muted">
               {inr(o.amount_inr)} · {new Date(o.created_at).toLocaleString()}
             </p>
             {o.shipping_snapshot && (
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-faint">
                 Ship to: {o.shipping_snapshot}
               </p>
             )}
             {o.utr && (
-              <p className="mt-1 text-xs text-neutral-400">UTR/RRN: {o.utr}</p>
+              <p className="mt-1 text-xs text-faint">UTR/RRN: {o.utr}</p>
             )}
             {o.razorpay_payment_id && (
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-faint">
                 Payment: {o.razorpay_payment_id}
               </p>
             )}

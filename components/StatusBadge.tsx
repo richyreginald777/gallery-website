@@ -1,16 +1,19 @@
 import { ArtworkStatus, STATUS_LABEL } from "@/lib/types";
 
 const STYLE: Record<ArtworkStatus, string> = {
-  available: "bg-emerald-100 text-emerald-800",
-  reserved: "bg-amber-100 text-amber-800",
-  sold: "bg-neutral-200 text-neutral-600",
+  available: "border-emerald-700/50 bg-emerald-950/60 text-emerald-300",
+  reserved: "border-amber-700/50 bg-amber-950/60 text-amber-300",
+  sold: "border-line bg-raise text-faint",
 };
 
 export default function StatusBadge({ status }: { status: ArtworkStatus }) {
   return (
     <span
-      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${STYLE[status]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[0.7rem] font-medium tracking-wide ${STYLE[status]}`}
     >
+      {status === "available" && (
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+      )}
       {STATUS_LABEL[status]}
     </span>
   );

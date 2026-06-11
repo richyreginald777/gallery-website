@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.0.0",
+    "@fontsource-variable/inter": "^5.0.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "browser-image-compression": "^2.0.2",
+    "framer-motion": "^11.3.0",
     "next": "14.2.5",
     "razorpay": "^2.9.4",
     "react": "^18.3.1",

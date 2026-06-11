@@ -14,7 +14,7 @@ export default function ShipButton({ orderId }: { orderId: string }) {
         await markShipped(orderId);
         setDone(true);
       })}
-      className="mt-3 rounded bg-neutral-900 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+      className="btn-primary mt-3 px-4 py-1.5 text-xs"
     >
       {done ? "Shipped" : pending ? "Saving…" : "Mark as shipped"}
     </button>
