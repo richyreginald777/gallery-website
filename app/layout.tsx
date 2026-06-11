@@ -4,6 +4,7 @@ import "@fontsource-variable/fraunces";
 import "@fontsource-variable/inter";
 import "./globals.css";
 import Header from "@/components/Header";
+import CursorStars from "@/components/CursorStars";
 
 export const metadata: Metadata = {
   title: "The Gallery — Original Artwork",
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen antialiased">
+        <CursorStars />
         <Header />
         <main className="min-h-screen">{children}</main>
         <footer className="border-t border-line">
