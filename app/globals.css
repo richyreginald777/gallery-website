@@ -2,17 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================================
+   THE GALLERY — design system v2
+   "A gallery at night, lit by a single warm spot."
+   Tokens are RGB triplets so Tailwind opacity modifiers (accent/40) work.
+   Two themes: dark (default, cinematic) and light (museum daylight).
+   ========================================================================= */
+
 :root {
-  /* Dark editorial — "gallery at night" (RGB triplets so Tailwind
-     opacity modifiers like accent/40 work) */
-  --bg: 13 12 11; /* #0d0c0b */
-  --surface: 20 18 15; /* #14120f */
+  /* — Dark, cinematic (default) — */
+  --bg: 12 11 10; /* #0c0b0a near-black, warm */
+  --surface: 19 17 15; /* #13110f */
   --raise: 28 25 21; /* #1c1915 */
-  --line: 42 38 31; /* #2a261f */
-  --ink: 236 231 221; /* #ece7dd */
-  --muted: 163 157 144; /* #a39d90 */
-  --faint: 107 101 87; /* #6b6557 */
-  --accent: 200 169 110; /* #c8a96e */
+  --line: 44 39 32; /* #2c2720 */
+  --ink: 238 233 223; /* #eee9df */
+  --muted: 165 158 145; /* #a59e91 */
+  --faint: 110 103 90; /* #6e675a */
+  --accent: 205 173 112; /* #cdad70 warm gold */
+  --accent-soft: 224 199 150; /* lighter gold for glows */
+
+  --shadow-color: 0 0 0;
+  --grain-opacity: 0.045;
+
+  /* type rhythm */
+  --step--1: clamp(0.78rem, 0.74rem + 0.2vw, 0.86rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+  --step-1: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
+  --step-2: clamp(1.7rem, 1.3rem + 1.6vw, 2.6rem);
+  --step-3: clamp(2.6rem, 1.8rem + 3.6vw, 5rem);
+  --step-4: clamp(3.4rem, 2rem + 6.5vw, 8rem);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme="light"] {
+  /* — Light, museum daylight — */
+  --bg: 247 244 238; /* #f7f4ee warm paper */
+  --surface: 255 253 249; /* #fffdf9 */
+  --raise: 240 235 226; /* #f0ebe2 */
+  --line: 222 214 200; /* #ded6c8 */
+  --ink: 28 25 21; /* #1c1915 */
+  --muted: 92 85 73; /* #5c5549 */
+  --faint: 142 133 118; /* #8e8576 */
+  --accent: 150 110 48; /* #966e30 deeper gold for contrast */
+  --accent-soft: 180 142 78;
+
+  --shadow-color: 60 50 35;
+  --grain-opacity: 0.03;
+}
+
+* {
+  border-color: rgb(var(--line));
 }
 
 html {
@@ -23,8 +63,22 @@ body {
   background: rgb(var(--bg));
   color: rgb(var(--ink));
   font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-0);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.6s var(--ease), color 0.6s var(--ease);
+}
+
+/* Film grain — pinned full-screen, behind everything, theme-aware */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
 }
 
 ::selection {
@@ -32,7 +86,31 @@ body {
   color: rgb(var(--bg));
 }
 
-/* Thin, dark scrollbar (desktop) */
+/* Visible keyboard focus everywhere (mouse clicks stay clean) */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip-to-content link — appears only when focused */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-150%);
+  transition: transform 0.25s var(--ease);
+  background: rgb(var(--ink));
+  color: rgb(var(--bg));
+  padding: 0.6rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 @media (pointer: fine) {
   ::-webkit-scrollbar {
     width: 10px;
@@ -49,21 +127,32 @@ body {
   }
 }
 
+@layer base {
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
 @layer components {
   .input {
     @apply w-full rounded-md border border-line bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-faint transition-colors duration-300 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-ink px-6 py-3 text-sm font-medium tracking-wide text-bg transition-all duration-300 ease-gallery hover:bg-accent hover:text-bg active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-7 py-3 text-sm font-medium tracking-wide text-bg transition-all duration-300 ease-gallery hover:bg-accent hover:text-bg active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line bg-transparent px-5 py-2.5 text-sm text-muted transition-all duration-300 ease-gallery hover:border-accent/50 hover:text-ink active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-transparent px-6 py-2.5 text-sm text-muted transition-all duration-300 ease-gallery hover:border-accent/60 hover:text-ink active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40;
   }
 
   .card {
-    @apply rounded-lg border border-line bg-surface;
+    @apply rounded-xl border border-line bg-surface;
   }
 
   .link-quiet {
@@ -76,7 +165,43 @@ body {
 
   /* Standard inner-page container (clears the fixed header) */
   .page {
-    @apply mx-auto w-full max-w-6xl px-5 pb-20 pt-28 sm:px-6;
+    @apply mx-auto w-full max-w-6xl px-5 pb-24 pt-32 sm:px-6;
+  }
+
+  /* Pill filter chip */
+  .chip {
+    @apply inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[0.78rem] tracking-wide transition-all duration-300 ease-gallery;
+  }
+  .chip-on {
+    @apply border-accent/70 bg-accent/10 text-ink;
+  }
+  .chip-off {
+    @apply border-line bg-transparent text-muted hover:border-accent/40 hover:text-ink;
+  }
+
+  /* Big editorial display type */
+  .display {
+    @apply font-serif tracking-tight text-ink;
+    font-size: var(--step-3);
+    line-height: 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Animated gold underline that grows from left */
+  .underline-grow {
+    background-image: linear-gradient(rgb(var(--accent)), rgb(var(--accent)));
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--ease);
+  }
+  .group:hover .underline-grow,
+  .underline-grow:hover {
+    background-size: 100% 1px;
   }
 }
 
@@ -89,6 +214,18 @@ body {
   }
   100% {
     transform: translateY(200%);
+  }
+}
+
+/* Reveal-on-scroll (CSS-only fallback used by some sections) */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
