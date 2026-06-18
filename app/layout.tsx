@@ -5,6 +5,7 @@ import "@fontsource-variable/inter";
 import "./globals.css";
 import Header from "@/components/Header";
 import CursorStars from "@/components/CursorStars";
+import GoldBurst from "@/components/GoldBurst";
 
 export const metadata: Metadata = {
   title: "The Gallery — Original Artwork",
@@ -36,6 +37,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <CursorStars />
+        <GoldBurst />
         <Header />
         <main id="main" className="relative z-10 min-h-screen">
           {children}

@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root { --ring: #cdad70; --ink: #0c0b0a; --paper: #0c0b0a; }
+    @media (prefers-color-scheme: light) {
+      :root { --ring: #966e30; --ink: #f7f4ee; --paper: #f7f4ee; }
+    }
+    .bg { fill: var(--ring); }
+    .mono { fill: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 600; }
+  </style>
+  <!-- Gold disc -->
+  <circle class="bg" cx="32" cy="32" r="30" />
+  <!-- Inner ring -->
+  <circle cx="32" cy="32" r="26" fill="none" stroke="var(--paper)" stroke-opacity="0.35" stroke-width="1.5" />
+  <!-- Monogram -->
+  <text class="mono" x="32" y="42" font-size="30" text-anchor="middle">TG</text>
+</svg>
