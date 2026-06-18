@@ -34,6 +34,10 @@ export default function HeroCanvas() {
     const gx = 0.5;
     const gy = 0.42;
 
+    // Theme-driven colours (refreshed on resize / theme change)
+    let accentCol = "205, 173, 112";
+    let softCol = "224, 199, 150";
+
     type P = {
       x: number;
       y: number;
@@ -65,14 +69,22 @@ export default function HeroCanvas() {
       }));
     }
 
+    function refreshColors() {
+      const cs = getComputedStyle(document.documentElement);
+      const accent = cs.getPropertyValue("--accent").trim();
+      const soft = cs.getPropertyValue("--accent-soft").trim();
+      if (accent) accentCol = accent.replace(/\s+/g, ", ");
+      if (soft) softCol = soft.replace(/\s+/g, ", ");
+    }
+
     function drawGlow() {
       const cx = gx * w;
       const cy = gy * h;
-      const radius = Math.max(w, h) * 0.75;
+      const radius = Math.max(w, h) * 0.8;
       const grad = ctx!.createRadialGradient(cx, cy, 0, cx, cy, radius);
-      grad.addColorStop(0, "rgba(200, 169, 110, 0.10)");
-      grad.addColorStop(0.4, "rgba(200, 169, 110, 0.035)");
-      grad.addColorStop(1, "rgba(13, 12, 11, 0)");
+      grad.addColorStop(0, `rgba(${accentCol}, 0.14)`);
+      grad.addColorStop(0.4, `rgba(${accentCol}, 0.045)`);
+      grad.addColorStop(1, `rgba(${accentCol}, 0)`);
       ctx!.fillStyle = grad;
       ctx!.fillRect(0, 0, w, h);
     }
@@ -95,15 +107,33 @@ export default function HeroCanvas() {
         const twinkle = 0.65 + 0.35 * Math.sin(t * 0.02 + p.tw);
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(225, 205, 160, ${(p.a * twinkle * 0.55).toFixed(
-          3
-        )})`;
+        ctx!.fillStyle = `rgba(${softCol}, ${(p.a * twinkle * 0.55).toFixed(3)})`;
         ctx!.fill();
       }
       raf = requestAnimationFrame(frame);
     }
 
+    refreshColors();
     resize();
+
+    // Repaint glow + motes when the theme attribute flips
+    const themeObserver = new MutationObserver(() => {
+      refreshColors();
+      if (reduced) {
+        ctx!.clearRect(0, 0, w, h);
+        drawGlow();
+        for (const p of particles) {
+          ctx!.beginPath();
+          ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(${softCol}, ${(p.a * 0.4).toFixed(3)})`;
+          ctx!.fill();
+        }
+      }
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
 
     if (reduced) {
       // Static composition: glow + a scattering of fixed motes.
@@ -111,7 +141,7 @@ export default function HeroCanvas() {
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(225, 205, 160, ${(p.a * 0.4).toFixed(3)})`;
+        ctx.fillStyle = `rgba(${softCol}, ${(p.a * 0.4).toFixed(3)})`;
         ctx.fill();
       }
       const onResizeStatic = () => {
@@ -119,7 +149,10 @@ export default function HeroCanvas() {
         drawGlow();
       };
       window.addEventListener("resize", onResizeStatic);
-      return () => window.removeEventListener("resize", onResizeStatic);
+      return () => {
+        themeObserver.disconnect();
+        window.removeEventListener("resize", onResizeStatic);
+      };
     }
 
     const io = new IntersectionObserver(
@@ -155,6 +188,7 @@ export default function HeroCanvas() {
       running = false;
       cancelAnimationFrame(raf);
       io.disconnect();
+      themeObserver.disconnect();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
     };

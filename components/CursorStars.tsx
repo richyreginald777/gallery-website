@@ -15,9 +15,6 @@ import { useEffect, useRef } from "react";
  * Renders nothing under prefers-reduced-motion.
  */
 
-const GOLD = "200, 169, 110"; // var(--accent)
-const WHITE = "236, 231, 221"; // var(--ink)
-
 type Sat = {
   angle: number; // current orbit angle
   speed: number; // radians/sec
@@ -27,7 +24,7 @@ type Sat = {
   x: number;
   y: number;
   tw: number; // twinkle phase
-  color: string;
+  primary: boolean; // true = accent, false = "contrast" colour
 };
 
 export default function CursorStars() {
@@ -43,6 +40,28 @@ export default function CursorStars() {
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const touch = window.matchMedia("(pointer: coarse)").matches;
+
+    // Theme-aware palette. In dark mode: warm gold + ink-white on near-black.
+    // In light mode: deep ink + deep gold on paper — so the cloud stays
+    // visible instead of washing out. Refreshed when [data-theme] flips.
+    let accentCol = "200, 169, 110";
+    let contrastCol = "236, 231, 221";
+    let alphaScale = 0.52;
+
+    function refreshPalette() {
+      const cs = getComputedStyle(document.documentElement);
+      const light =
+        document.documentElement.getAttribute("data-theme") === "light";
+      const accent = cs.getPropertyValue("--accent").trim();
+      const ink = cs.getPropertyValue("--ink").trim();
+      if (accent) accentCol = accent.replace(/\s+/g, ", ");
+      // The "other" stars use ink so they contrast with the background in
+      // both themes (dark ink-dots on paper, light ink-dots on near-black).
+      if (ink) contrastCol = ink.replace(/\s+/g, ", ");
+      // Dark dots on a light page need more presence than glowing dots on black.
+      alphaScale = light ? 0.85 : 0.52;
+    }
+
     let w = 0;
     let h = 0;
     let raf = 0;
@@ -68,7 +87,7 @@ export default function CursorStars() {
       x: -100,
       y: -100,
       tw: Math.random() * Math.PI * 2,
-      color: Math.random() < 0.65 ? GOLD : WHITE,
+      primary: Math.random() < 0.65,
     }));
 
     function resize() {
@@ -123,7 +142,8 @@ export default function CursorStars() {
         // gentle twinkle; some stars almost disappear between blinks
         const twinkle = 0.5 + 0.5 * Math.sin(now * 0.0025 + s.tw);
         if (twinkle <= 0.05) continue;
-        star(s.x, s.y, s.r, 0.52 * twinkle * fade, s.color);
+        const col = s.primary ? accentCol : contrastCol;
+        star(s.x, s.y, s.r, alphaScale * twinkle * fade, col);
       }
 
       raf = requestAnimationFrame(frame);
@@ -165,7 +185,16 @@ export default function CursorStars() {
       if (document.hidden) hide();
     };
 
+    refreshPalette();
     resize();
+
+    // React to day/night toggle so the cloud recolours instantly.
+    const themeObserver = new MutationObserver(refreshPalette);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("pointerdown", onPointerDown, { passive: true });
@@ -175,6 +204,7 @@ export default function CursorStars() {
 
     return () => {
       cancelAnimationFrame(raf);
+      themeObserver.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerdown", onPointerDown);

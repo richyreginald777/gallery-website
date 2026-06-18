@@ -5,7 +5,9 @@ import { Artwork } from "@/lib/types";
 import { logger } from "@/lib/log";
 import HeroCanvas from "@/components/HeroCanvas";
 import Reveal from "@/components/Reveal";
-import ArtCard from "@/components/ArtCard";
+import CollectionGrid, { CollectionItem } from "@/components/CollectionGrid";
+import MagneticLink from "@/components/MagneticLink";
+import ScrollMarquee from "@/components/ScrollMarquee";
 
 export const revalidate = 0; // always fresh; status changes immediately
 
@@ -23,9 +25,17 @@ export default async function GalleryPage() {
   else log.info("artworks loaded", { count: (data ?? []).length });
 
   const artworks = (data ?? []) as Artwork[];
-  const availableCount = artworks.filter(
-    (a) => a.status === "available"
-  ).length;
+  const availableCount = artworks.filter((a) => a.status === "available").length;
+
+  const items: CollectionItem[] = artworks.map((a) => ({
+    id: a.id,
+    title: a.title,
+    priceLabel: inr(a.price_inr),
+    priceValue: a.price_inr,
+    status: a.status,
+    imageUrl: publicImageUrl(a.image_path),
+    medium: a.medium,
+  }));
 
   return (
     <div>
@@ -33,30 +43,38 @@ export default async function GalleryPage() {
       <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
         <HeroCanvas />
         {/* Floor glow */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-bg to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-bg to-transparent" />
 
-        <div className="relative z-10 mx-auto max-w-3xl px-5 text-center sm:px-6">
+        <div className="relative z-10 mx-auto max-w-4xl px-5 text-center sm:px-6">
           <Reveal>
-            <p className="eyebrow mb-6">A private collection · for sale</p>
+            <p className="eyebrow mb-7">A private collection · for sale</p>
           </Reveal>
-          <Reveal delay={0.15}>
-            <h1 className="font-serif text-5xl leading-[1.05] tracking-tight text-ink sm:text-7xl">
-              Original works,
-              <br />
-              <span className="text-accent">one of one.</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.3}>
-            <p className="mx-auto mt-7 max-w-md text-base leading-relaxed text-muted sm:text-lg">
+
+          {/* Oversized kinetic headline */}
+          <h1 className="font-serif leading-[0.95] tracking-tight text-ink">
+            <Reveal delay={0.12}>
+              <span className="block text-[clamp(2.8rem,9vw,6.5rem)]">
+                Original works,
+              </span>
+            </Reveal>
+            <Reveal delay={0.26}>
+              <span className="block text-[clamp(2.8rem,9vw,6.5rem)] italic text-accent">
+                one of one.
+              </span>
+            </Reveal>
+          </h1>
+
+          <Reveal delay={0.42}>
+            <p className="mx-auto mt-8 max-w-lg text-base leading-relaxed text-muted sm:text-lg">
               Paintings and works on paper from a single studio. Each piece
               exists exactly once — when it sells, it&apos;s gone for good.
             </p>
           </Reveal>
-          <Reveal delay={0.45}>
-            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a href="#collection" className="btn-primary">
+          <Reveal delay={0.56}>
+            <div className="mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <MagneticLink href="#collection" className="btn-primary">
                 View the collection
-              </a>
+              </MagneticLink>
               {availableCount > 0 && (
                 <span className="text-xs text-faint">
                   {availableCount}{" "}
@@ -83,13 +101,19 @@ export default async function GalleryPage() {
       {/* ——— Collection ——— */}
       <section
         id="collection"
-        className="mx-auto max-w-6xl scroll-mt-24 px-5 pb-24 pt-20 sm:px-6"
+        className="relative mx-auto max-w-6xl scroll-mt-20 px-5 pb-28 pt-20 sm:px-6"
       >
+        {/* Kinetic ghost-type behind the heading */}
+        <ScrollMarquee
+          text="The Gallery"
+          className="absolute inset-x-0 top-8 -z-0"
+        />
+
         <Reveal>
-          <div className="mb-12 flex items-end justify-between gap-4">
+          <div className="relative z-10 mb-8 flex items-end justify-between gap-4">
             <div>
               <p className="eyebrow mb-3">The collection</p>
-              <h2 className="font-serif text-3xl tracking-tight text-ink sm:text-4xl">
+              <h2 className="font-serif text-step-2 tracking-tight text-ink">
                 Currently in the studio
               </h2>
             </div>
@@ -117,19 +141,7 @@ export default async function GalleryPage() {
           </p>
         )}
 
-        <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-          {artworks.map((art, i) => (
-            <ArtCard
-              key={art.id}
-              id={art.id}
-              title={art.title}
-              priceLabel={inr(art.price_inr)}
-              status={art.status}
-              imageUrl={publicImageUrl(art.image_path)}
-              index={i}
-            />
-          ))}
-        </div>
+        {!error && artworks.length > 0 && <CollectionGrid items={items} />}
       </section>
     </div>
   );
