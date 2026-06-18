@@ -344,7 +344,7 @@ npm run lint
 - Verify bucket has public access enabled
 - Confirm `NEXT_PUBLIC_SUPABASE_URL` is correct
 
-** NOTE: Payment Flow is not yet Implemnted
+** NOTE: Payment Flow Test Credentials used.
 
 ## License
 
